@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-frontend
+  labels:
+    app: flask-frontend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: flask-frontend
+    spec:
+      containers:
+      - image: kealiu/flaskecho:lastest
+        imagePullPolicy: Always
+        name: flask-frontend
+        env: 
+        - name: SERVER_NAME
+          value: "frontend"
+        - name: UPSTREAM
+          value: "http://flask-backend/"
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+     
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-backend
+  labels:
+    app: flask-backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: flask-backend
+    spec:
+      containers:
+      - image: kealiu/flaskecho:lastest
+        imagePullPolicy: Always
+        name: flask-backend
+        env:
+        - name: SERVER_NAME
+          value: "backend"
+        ports:
+        - containerPort: 5000
+          protocol: TCP
